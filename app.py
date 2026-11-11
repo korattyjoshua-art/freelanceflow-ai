@@ -228,4 +228,17 @@ elif st.session_state.escrow_status == "CONTRACT_COMPLETED":
         "timestamp": str(datetime.datetime.now())
     }
     save_history(contract_record)
-  
+  # Historical Payment Escrow Sidebar
+with st.sidebar:
+    st.header("Historical Payment Escrow")
+    st.markdown("---")
+    
+    st.markdown("*Gig #101:* React Portfolio Setup")
+    st.write("Status: Escrow Funded 🟢")
+    st.write("Amount: $300")
+    
+    st.markdown("---")
+    
+    st.markdown("*Gig #102:* E-commerce Landing Page")
+    st.write("Status: Payout Released ✅")
+    st.write("Amount: $650")
