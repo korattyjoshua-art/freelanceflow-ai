@@ -1,15 +1,65 @@
 import streamlit as st
 import json
+import os
+import datetime
 import urllib.parse
 import re
-from groq import Groq
+st.set_page_config(
+    page_title="FreelanceFlow AI",
+    page_icon="💼",
+    layout="wide",
+    initial_sidebar_state="expanded"
+)
 
-# 1. Page Configuration & Theme
-st.set_page_config(page_title="PayPal Smart Escrow Agent", page_icon="🏦", layout="centered")
+# Custom CSS to hide developer headers, footers, and standard padding
+st.markdown("""
+    <style>
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    .block-container {
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+    }
+    .stButton>button {
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
-st.markdown("<h1 style='color: #003087; text-align: center;'>🏦 PayPal Smart Escrow Agent</h1>", unsafe_allow_html=True)
-st.markdown("<h3 style='text-align: center; color: #0070ba;'>Autonomous Agentic Commerce & Milestone Vault</h3>", unsafe_allow_html=True)
-st.write("---")
+# Main Branding Header
+st.markdown("<h1 style='text-align: center; color: #0f172a;'>💼 FreelanceFlow AI</h1>", unsafe_allow_html=True)
+st.markdown("<p style='text-align: center; color: #64748b; font-size: 1.1rem;'>Autonomous Agentic Commerce & Milestone Escrow Vault</p>", unsafe_allow_html=True)
+st.divider()
+HISTORY_FILE = "escrow_history.json"
+
+def load_history():
+    if os.path.exists(HISTORY_FILE):
+        with open(HISTORY_FILE, "r") as f:
+            return json.load(f)
+    return []
+
+def save_history(contract_data):
+    history = load_history()
+    if not any(h.get('timestamp') == contract_data.get('timestamp') for h in history):
+        history.append(contract_data)
+        with open(HISTORY_FILE, "w") as f:
+            json.dump(history, f, indent=4)
+
+# --- Sidebar goes OUTSIDE all functions, at the very bottom or top of your main script ---
+with st.sidebar:
+    st.markdown("---")
+    st.subheader("📜 Past Contracts Audit Log")
+    past_records = load_history()
+    if past_records:
+        for idx, record in enumerate(past_records):
+            st.text(f"Contract #{idx+1}: ${record.get('total_value')} - {record.get('status')}")
+    else:
+        st.info("No completed contracts saved yet.")
+
+#
 
 # 2. Sidebar Control for Multiple Clients / New Chats
 with st.sidebar:
@@ -131,37 +181,51 @@ if st.session_state.escrow_data:
     st.info(f"📋 *Milestone 2:* {data.get('milestone_2_title')} — *${data.get('milestone_2_amount')}*")
     
     st.write(f"🔍 *AI Trust Verification:* {data.get('authenticity_summary')}")
+# Interactive Actions based on State
+# Ensure data dictionary exists safely in session state
+data = st.session_state.get('data', {})
+if st.session_state.escrow_status == "PENDING_DEPOSIT":
+    # Use PayPal's standard hosted checkout URL structure for sandbox testing
+    total_val = f"{data.get('total_contract_value', 2500):.2f}"
+    paypal_sandbox_url = f"https://www.sandbox.paypal.com/cgi-bin/webscr?cmd=_xclick&business=sb-6hhqk53795569@business.example.com&amount={total_val}&currency_code=USD&item_name=Freelance+Escrow+Milestone+Lock"
     
-    # Interactive Actions based on State
-    if st.session_state.escrow_status == "PENDING_DEPOSIT":
-        params = {
-            "cmd": "_xclick",
-            "business": "freelance-escrow-sandbox@business.example.com",
-            "amount": f"{data.get('total_contract_value', 2500):.2f}",
-            "currency_code": "USD",
-            "item_name": "Freelance Escrow Milestone Lock",
-            "no_shipping": "1"
-        }
-        paypal_sandbox_url = f"https://www.sandbox.paypal.com/cgi-bin/webscr?{urllib.parse.urlencode(params)}"
-        
-        st.link_button("🌐 Deposit & Lock Funds into Secure PayPal Vault", paypal_sandbox_url, type="primary", use_container_width=True)
-        
-        if st.button("🧪 Simulate Buyer Deposit Complete", use_container_width=True):
-            st.session_state.escrow_status = "FUNDS_LOCKED_IN_VAULT"
-            st.rerun()
-            
-    elif st.session_state.escrow_status == "FUNDS_LOCKED_IN_VAULT":
-        st.success("🔒 Funds are securely locked in the PayPal Sandbox Vault. Safe to begin work!")
-        if st.button("✅ Mark Milestone 1 Complete & Release Funds", type="primary", use_container_width=True):
-            st.session_state.escrow_status = "MILESTONE_1_PAID"
-            st.rerun()
-            
-    elif st.session_state.escrow_status == "MILESTONE_1_PAID":
-        st.success("🎉 Milestone 1 funds released to freelancer wallet via PayPal API!")
-        if st.button("✅ Complete Final Milestone & Close Contract", type="primary", use_container_width=True):
-            st.session_state.escrow_status = "CONTRACT_COMPLETED"
-            st.rerun()
-            
-    elif st.session_state.escrow_status == "CONTRACT_COMPLETED":
-        st.balloons()
-        st.success("🏆 Contract successfully finalized and fully settled through PayPal Agentic Commerce!")
+    st.link_button("🔒 Deposit & Lock Funds into Secure PayPal Vault", paypal_sandbox_url)
+
+    if st.button("Simulate Buyer Deposit Complete", use_container_width=True):
+        st.session_state.escrow_status = "FUNDS_LOCKED_IN_VAULT"
+        st.rerun()
+
+elif st.session_state.escrow_status == "FUNDS_LOCKED_IN_VAULT":
+    st.success("🔒 Funds are securely locked in the PayPal Sandbox Vault. Safe to begin work.")
+    if st.button("✅ Mark Milestone 1 Complete & Release Funds", type="primary", use_container_width=True):
+        st.session_state.escrow_status = "MILESTONE_1_PAID"
+        st.rerun()
+
+elif st.session_state.escrow_status == "MILESTONE_1_PAID":
+    st.success("🎉 Milestone 1 funds released to freelancer wallet via PayPal API!")
+    if st.button("🏆 Complete Final Milestone & Close Contract", type="primary", use_container_width=True):
+        st.session_state.escrow_status = "CONTRACT_COMPLETED"
+        st.rerun()
+
+elif st.session_state.escrow_status == "CONTRACT_COMPLETED":
+    st.balloons()
+    st.success("🌟 Contract successfully finalized and fully settled through PayPal Agentic Escrow!")
+    # Save the completed contract to local history
+    contract_record = {
+            "status": "COMPLETED",
+            "total_value": data.get('total_contract_value', 600),
+           "timestamp": str(datetime.datetime.now())
+    }
+    save_history(contract_record)
+
+elif st.session_state.escrow_status == "CONTRACT_COMPLETED":
+    st.balloons()
+    st.success("🌟 Contract successfully finalized and fully settled through PayPal Agentic Escrow!")
+    # Save the completed contract to local history
+    contract_record = {
+        "status": "COMPLETED",
+        "total_value": data.get('total_contract_value', 600),
+        "timestamp": str(datetime.datetime.now())
+    }
+    save_history(contract_record)
+  
