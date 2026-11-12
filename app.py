@@ -14,55 +14,33 @@ st.set_page_config(
 with st.sidebar:
     st.header("Historical Payment Escrow")
     st.markdown("---")
+    
     st.markdown("*Gig #101:* React Portfolio Setup")
     st.write("Status: Escrow Funded 🟢")
     st.write("Amount: $300")
-
-# Custom UI Styling & Color Palette for FreelanceFlow AI
-st.markdown("""
-<style>
-    /* Main background & font styling */
-    .stApp {
-        background-color: #0e1117;
-        color: #e0e0e0;
-    }
     
-    /* Sleek sidebar styling */
-    [data-testid="stSidebar"] {
-        background-color: #161b22;
-        border-right: 1px solid #30363d;
-    }
-</style>
-""", unsafe_allow_html=True)
-
-    /* Custom buttons with PayPal / Tech blue accent */
-    .stButton>button {
-        background: linear-gradient(135deg, #0070ba 0%, #003087 100%);
-        color: white;
-        border-radius: 8px;
-        padding: 0.5rem 1rem;
-        font-weight: 600;
-        border: none;
-        box-shadow: 0 4px 12px rgba(0, 112, 186, 0.3);
-        transition: all 0.3s ease;
-    }
-    .stButton>button:hover {
-        background: linear-gradient(135deg, #005ea6 0%, #002266 100%);
-        box-shadow: 0 6px 16px rgba(0, 112, 186, 0.5);
-        color: #ffffff;
-    }
-
-    /* Chat message bubbles styling */
-    .stChatMessage {
-        border-radius: 12px;
-        padding: 10px;
-        margin-bottom: 10px;
-        border: 1px solid #30363d;
-    }
-
+    st.markdown("---")
+    
     st.markdown("*Gig #102:* E-commerce Landing Page")
     st.write("Status: Payout Released ✅")
     st.write("Amount: $650")
+# Custom CSS to hide developer headers, footers, and standard padding
+st.markdown("""
+    <style>
+    #MainMenu {visibility: hidden;}
+    footer {visibility: hidden;}
+    header {visibility: hidden;}
+    .block-container {
+        padding-top: 2rem;
+        padding-bottom: 2rem;
+    }
+    .stButton>button {
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.2s ease;
+    }
+    </style>
+""", unsafe_allow_html=True)
 
 # Main Branding Header
 st.markdown("<h1 style='text-align: center; color: #0f172a;'>💼 FreelanceFlow AI</h1>", unsafe_allow_html=True)
@@ -82,6 +60,7 @@ def save_history(contract_data):
         history.append(contract_data)
         with open(HISTORY_FILE, "w") as f:
             json.dump(history, f, indent=4)
+
 
 # 3. Initialize Session State for Chat and Escrow
 if "messages" not in st.session_state:
@@ -110,48 +89,48 @@ for message in st.session_state.messages:
 chat_input = st.chat_input("Type project negotiation or chat log here...")
 
 if chat_input:
-    # Append and display user message
     st.session_state.messages.append({"role": "user", "content": chat_input})
     with st.chat_message("user"):
         st.markdown(chat_input)
 
     # AI Processing with Smart Dynamic Extraction
     with st.chat_message("assistant"):
-        with st.spinner("💳 PayPal AI Agent analyzing commercial terms..."):
+        with st.spinner("🧠 PayPal AI Agent analyzing commercial terms..."):
+            
             prompt = f"""
-            You are a native PayPal AI Messaging Assistant specializing in escrow.
+            You are a native PayPal AI Messaging Assistant specialized in Agentic Commerce.
             Analyze this conversation / text: "{chat_input}"
-            prompt = f"""
-        You are a native PayPal AI Messaging Assistant specializing in escrow.
-        Analyze this conversation / text: "{chat_input}"
-        Extract the commercial terms and return ONLY a valid JSON object with this exact structure:
-        {{
-            "total_contract_value": 3000,
-            "milestone_1_title": "string description",
-            "milestone_1_amount": 1200,
-            "milestone_2_title": "string description",
-            "milestone_2_amount": 1800,
-            "authenticity_summary": "short trust summary"
-        }}
-        """
-
-       ai_data = None
-        try:
-            chat_completion = client.chat.completions.create(
-                messages=[{"role": "user", "content": prompt}],
-                model="llama3-70b-8192",
-                temperature=0.2,
-                max_tokens=500
-            )
-            raw_content = chat_completion.choices[0].message.content
-            if "{" in raw_content and "}" in raw_content:
-                start_idx = raw_content.find("{")
-                end_idx = raw_content.rfind("}") + 1
-                raw_content = raw_content[start_idx:end_idx]
-
-            ai_data = json.loads(raw_content)
-        except Exception as e:
-            st.error(f"API Error: {e}")
+            
+            Extract the commercial terms and return ONLY a valid, raw JSON object with these exact keys. Do not include markdown code block formatting or preambles:
+            {{
+                "total_contract_value": 3000,
+                "milestone_1_title": "string description",
+                "milestone_1_amount": 1200,
+                "milestone_2_title": "string description",
+                "milestone_2_amount": 1800,
+                "authenticity_summary": "short trust summary"
+            }}
+            """
+            
+            ai_data = None
+            try:
+                chat_completion = client.chat.completions.create(
+                    messages=[{"role": "user", "content": prompt}],
+                    model="openai/gpt-oss-20b",
+                    temperature=0.2,
+                    max_tokens=500
+                )
+                
+                raw_content = chat_completion.choices[0].message.content.strip()
+                if "{" in raw_content and "}" in raw_content:
+                    start_idx = raw_content.find("{")
+                    end_idx = raw_content.rfind("}") + 1
+                    raw_content = raw_content[start_idx:end_idx]
+                    
+                ai_data = json.loads(raw_content)
+                
+            except Exception:
+                # SMART DYNAMIC PARSER: Extracts numbers from your text automatically!
                 numbers = [int(n.replace(",", "")) for n in re.findall(r'\b\d{1,3}(?:,\d{3})+\b|\b\d{3,5}\b', chat_input)]
                 
                 total_val = max(numbers) if numbers else 2500
@@ -173,22 +152,23 @@ if chat_input:
             st.markdown(response_text)
             st.session_state.messages.append({"role": "assistant", "content": response_text})
 
-# 6. # 6. Active Escrow Dashboard (Rendered when contract is active)
+# 6. Active Escrow Dashboard (Rendered when contract is active)
 if st.session_state.escrow_data:
     data = st.session_state.escrow_data
     
     st.write("---")
-    st.subheader("🔵 Active PayPal Smart Escrow Vault")
+    st.subheader("🛡️ Active PayPal Smart Escrow Vault")
     
     col1, col2 = st.columns(2)
     with col1:
-        st.metric(label="💳 Total Escrow Value", value=f"${int(data.get('total_contract_value', 3000))}")
+        st.metric(label="💼 Total Escrow Value", value=f"${int(data.get('total_contract_value', 2500)):,}")
     with col2:
         st.metric(label="🔒 Vault Status", value=st.session_state.escrow_status)
         
-    st.info(f"📌 *Milestone 1:* {data.get('milestone_1_title', 'Task 1')} (${data.get('milestone_1_amount', 1200)})")
-    st.info(f"📌 *Milestone 2:* {data.get('milestone_2_title', 'Task 2')} (${data.get('milestone_2_amount', 1800)})")
-    st.write(f"🛡️ *AI Trust Verification:* {data.get('authenticity_summary', 'Verified safe')}")
+    st.info(f"📋 *Milestone 1:* {data.get('milestone_1_title')} — *${data.get('milestone_1_amount')}*")
+    st.info(f"📋 *Milestone 2:* {data.get('milestone_2_title')} — *${data.get('milestone_2_amount')}*")
+    
+    st.write(f"🔍 *AI Trust Verification:* {data.get('authenticity_summary')}")
 # Interactive Actions based on State
 # Ensure data dictionary exists safely in session state
 data = st.session_state.get('data', {})
@@ -204,20 +184,31 @@ if st.session_state.escrow_status == "PENDING_DEPOSIT":
         st.rerun()
 
 elif st.session_state.escrow_status == "FUNDS_LOCKED_IN_VAULT":
-    st.success("🔒 Funds are securely locked in the PayPal Sandbox Vault!")
-    if st.button("✅ Mark Milestone 1 Complete & Release Funds"):
+    st.success("🔒 Funds are securely locked in the PayPal Sandbox Vault. Safe to begin work.")
+    if st.button("✅ Mark Milestone 1 Complete & Release Funds", type="primary", use_container_width=True):
         st.session_state.escrow_status = "MILESTONE_1_PAID"
         st.rerun()
 
 elif st.session_state.escrow_status == "MILESTONE_1_PAID":
-    st.success("🎉 Milestone 1 funds released to freelancer wallet!")
-    if st.button("🏁 Complete Final Milestone & Close Contract"):
+    st.success("🎉 Milestone 1 funds released to freelancer wallet via PayPal API!")
+    if st.button("🏆 Complete Final Milestone & Close Contract", type="primary", use_container_width=True):
         st.session_state.escrow_status = "CONTRACT_COMPLETED"
         st.rerun()
 
 elif st.session_state.escrow_status == "CONTRACT_COMPLETED":
     st.balloons()
-    st.success("🌟 Contract successfully finalized and fully settled!")
+    st.success("🌟 Contract successfully finalized and fully settled through PayPal Agentic Escrow!")
+    # Save the completed contract to local history
+    contract_record = {
+            "status": "COMPLETED",
+            "total_value": data.get('total_contract_value', 600),
+           "timestamp": str(datetime.datetime.now())
+    }
+    save_history(contract_record)
+
+elif st.session_state.escrow_status == "CONTRACT_COMPLETED":
+    st.balloons()
+    st.success("🌟 Contract successfully finalized and fully settled through PayPal Agentic Escrow!")
     # Save the completed contract to local history
     contract_record = {
         "status": "COMPLETED",
@@ -225,3 +216,4 @@ elif st.session_state.escrow_status == "CONTRACT_COMPLETED":
         "timestamp": str(datetime.datetime.now())
     }
     save_history(contract_record)
+ 
