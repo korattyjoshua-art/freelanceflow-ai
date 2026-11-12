@@ -62,23 +62,6 @@ st.markdown("""
     st.markdown("*Gig #102:* E-commerce Landing Page")
     st.write("Status: Payout Released ✅")
     st.write("Amount: $650")
-# Custom CSS Styling
-st.markdown("""
-<style>
-    #MainMenu {visibility: hidden;}
-    footer {visibility: hidden;}
-    header {visibility: hidden;}
-    .block-container {
-        padding-top: 2rem;
-        padding-bottom: 2rem;
-    }
-    .stButton>button {
-        border-radius: 8px;
-        font-weight: 600;
-        transition: all 0.2s ease;
-    }
-</style>
-""", unsafe_allow_html=True)
 
 # Main Branding Header
 st.markdown("<h1 style='text-align: center; color: #0f172a;'>💼 FreelanceFlow AI</h1>", unsafe_allow_html=True)
