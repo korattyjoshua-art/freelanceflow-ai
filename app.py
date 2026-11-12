@@ -62,9 +62,9 @@ st.markdown("""
     st.markdown("*Gig #102:* E-commerce Landing Page")
     st.write("Status: Payout Released ✅")
     st.write("Amount: $650")
-# Custom CSS to hide developer headers, footers, and standard padding
+# Custom CSS for UI styling
 st.markdown("""
-    <style>
+<style>
     #MainMenu {visibility: hidden;}
     footer {visibility: hidden;}
     header {visibility: hidden;}
@@ -77,7 +77,7 @@ st.markdown("""
         font-weight: 600;
         transition: all 0.2s ease;
     }
-    </style>
+</style>
 """, unsafe_allow_html=True)
 
 # Main Branding Header
