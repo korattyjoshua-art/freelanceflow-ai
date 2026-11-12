@@ -62,7 +62,7 @@ st.markdown("""
     st.markdown("*Gig #102:* E-commerce Landing Page")
     st.write("Status: Payout Released ✅")
     st.write("Amount: $650")
-# Custom CSS for UI styling
+# Custom CSS Styling
 st.markdown("""
 <style>
     #MainMenu {visibility: hidden;}
