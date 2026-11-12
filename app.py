@@ -14,12 +14,11 @@ st.set_page_config(
 with st.sidebar:
     st.header("Historical Payment Escrow")
     st.markdown("---")
-    
     st.markdown("*Gig #101:* React Portfolio Setup")
     st.write("Status: Escrow Funded 🟢")
     st.write("Amount: $300")
 
-    # Custom UI Styling & Color Palette for FreelanceFlow AI
+# Custom UI Styling & Color Palette for FreelanceFlow AI
 st.markdown("""
 <style>
     /* Main background & font styling */
@@ -27,7 +26,7 @@ st.markdown("""
         background-color: #0e1117;
         color: #e0e0e0;
     }
-    
+
     /* Sleek sidebar styling */
     [data-testid="stSidebar"] {
         background-color: #161b22;
@@ -121,19 +120,19 @@ if chat_input:
             You are a native PayPal AI Messaging Assistant specializing in escrow.
             Analyze this conversation / text: "{chat_input}"
             """
-            prompt = f"""
-            You are a native PayPal AI Messaging Assistant specializing in escrow.
-            Analyze this conversation / text: "{chat_input}"
-            Extract the commercial terms and return ONLY a valid JSON object with this exact structure:
-            {{
-                "total_contract_value": 3000,
-                "milestone_1_title": "string description",
-                "milestone_1_amount": 1200,
-                "milestone_2_title": "string description",
-                "milestone_2_amount": 1800,
-                "authenticity_summary": "short trust summary"
-            }}
-            """
+           prompt = f"""
+        You are a native PayPal AI Messaging Assistant specializing in escrow.
+        Analyze this conversation / text: "{chat_input}"
+        Extract the commercial terms and return ONLY a valid JSON object with this exact structure:
+        {{
+            "total_contract_value": 3000,
+            "milestone_1_title": "string description",
+            "milestone_1_amount": 1200,
+            "milestone_2_title": "string description",
+            "milestone_2_amount": 1800,
+            "authenticity_summary": "short trust summary"
+        }}
+        """
 
         ai_data = None
         try:
@@ -231,17 +230,6 @@ elif st.session_state.escrow_status == "CONTRACT_COMPLETED":
             "status": "COMPLETED",
             "total_value": data.get('total_contract_value', 600),
            "timestamp": str(datetime.datetime.now())
-    }
-    save_history(contract_record)
-
-elif st.session_state.escrow_status == "CONTRACT_COMPLETED":
-    st.balloons()
-    st.success("🌟 Contract successfully finalized and fully settled through PayPal Agentic Escrow!")
-    # Save the completed contract to local history
-    contract_record = {
-        "status": "COMPLETED",
-        "total_value": data.get('total_contract_value', 600),
-        "timestamp": str(datetime.datetime.now())
     }
     save_history(contract_record)
  
