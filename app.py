@@ -8,7 +8,13 @@ import streamlit as st
 try:
     from groq import Groq
 except ImportError:
-    Groq = None
+   def get_groq_api_key() -> str:
+    try:
+        if "GROQ_API_KEY" in st.secrets:
+            return st.secrets["GROQ_API_KEY"]
+    except Exception:
+        pass
+    return os.getenv("GROQ_API_KEY", "")
 
 st.set_page_config(
     page_title="FreelanceFlow AI | Contract Risk & Escrow Control",
@@ -120,7 +126,7 @@ def analyze_contract_with_groq(text: str, api_key: str) -> dict:
     {text}
     """
     response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
+        model="openai/gpt-oss-120b",
         messages=[{"role": "user", "content": prompt}],
         temperature=0.2,
         response_format={"type": "json_object"},
